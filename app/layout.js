@@ -9,14 +9,14 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "access: youtube - Enhanced Accessibility YouTube Search",
-  description: "Search YouTube videos with enhanced accessibility features",
+  title: "access: chatgpt - Enhanced Accessibility ChatGPT Interface",
+  description: "Interact with ChatGPT using enhanced accessibility features",
   icons: {
     icon: '/favicon.ico',
   },
   manifest: "/site.webmanifest",
   appleWebApp: {
-    title: "access:youtube",
+    title: "access:chatgpt",
     statusBarStyle: "default",
   },
 };

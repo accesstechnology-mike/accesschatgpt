@@ -1,7 +1,7 @@
 {
-  "name": "access: youtube",
-  "short_name": "access:yt",
-  "description": "Enhanced Accessibility YouTube Search",
+  "name": "access: chatgpt",
+  "short_name": "access:gpt",
+  "description": "Enhanced Accessibility ChatGPT Interface",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#2e1433",
