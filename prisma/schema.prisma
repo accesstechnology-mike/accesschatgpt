@@ -1,0 +1,162 @@
+// Better Auth Prisma schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+// Better Auth will generate its own tables, but we need to define our custom tables
+model User {
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  emailVerified       Boolean  @default(false)
+  name                String?
+  image               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Custom fields for subscriptions
+  stripeCustomerId    String?
+  subscriptionStatus String   @default("free")
+  subscriptionTier    String   @default("free")
+  
+  // Relations
+  accounts            Account[]
+  sessions            Session[]
+  verifications       Verification[]
+  
+  @@map("user")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  expiresAt             DateTime?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  idToken               String?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([providerId, accountId])
+  @@map("account")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("session")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String?
+  
+  @@unique([identifier, value])
+  @@map("verification")
+}
+
+// Our custom tables for daily limits and usage tracking
+model SessionLimit {
+  id                  String   @id @default(cuid())
+  sessionId           String   @unique
+  ipAddress           String
+  createdAt           DateTime @default(now())
+  lastUsedAt          DateTime @default(now())
+  dailyUsageCount     Int      @default(0)
+  dailyUsageResetAt   DateTime
+  isBlocked           Boolean  @default(false)
+  blockedUntil        DateTime?
+  userId              String?
+  
+  @@map("session_limit")
+}
+
+model UsageLog {
+  id          Int      @id @default(autoincrement())
+  sessionId   String
+  userId      String?
+  endpoint    String
+  ipAddress   String
+  timestamp   DateTime @default(now())
+  suspicious  Boolean  @default(false)
+  
+  @@index([sessionId])
+  @@index([userId])
+  @@index([timestamp])
+  @@map("usage_log")
+}
+
+// Bot protection and rate limiting tables
+model RateLimit {
+  id          String   @id @default(cuid())
+  identifier  String   // IP address or session ID
+  endpoint    String
+  count       Int      @default(0)
+  resetAt     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([identifier, endpoint])
+  @@index([identifier, endpoint])
+  @@index([resetAt])
+  @@map("rate_limits")
+}
+
+model RequestFingerprint {
+  id            Int      @id @default(autoincrement())
+  fingerprint   String   @unique
+  ipAddress     String
+  sessionId     String?
+  userAgent     String?
+  acceptLanguage String?
+  firstSeen     DateTime @default(now())
+  lastSeen      DateTime @default(now())
+  requestCount  Int      @default(1)
+  
+  @@index([fingerprint])
+  @@index([ipAddress])
+  @@map("request_fingerprints")
+}
+
+model CostTracking {
+  id            Int      @id @default(autoincrement())
+  date          String   @unique // YYYY-MM-DD format
+  totalCost     Float    @default(0.0)
+  requestCount  Int      @default(0)
+  tokenCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([date])
+  @@map("cost_tracking")
+}
+
