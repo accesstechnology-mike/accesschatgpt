@@ -98,7 +98,7 @@ export async function checkDailyLimit(sessionId, userId = null) {
     return {
       allowed: true,
       remaining,
-      used: 1,
+      used: dailyLimit === Infinity ? 0 : 1,
       limit: dailyLimit,
       resetAt: nextReset,
       tier,
