@@ -77,7 +77,7 @@ export async function checkDailyLimit(sessionId, userId = null) {
   const now = Date.now();
   const resetAtTimestamp = sessionLimit.dailyUsageResetAt.getTime();
   if (resetAtTimestamp <= now) {
-    // Reset counter
+    // Reset counter and increment for current request
     const nextReset = new Date(getNextMidnightUTC());
     const updateWhere = userId 
       ? { id: sessionLimit.id } // Update by ID for logged-in users
@@ -85,17 +85,22 @@ export async function checkDailyLimit(sessionId, userId = null) {
     sessionLimit = await prisma.sessionLimit.update({
       where: updateWhere,
       data: {
-        dailyUsageCount: 0,
+        dailyUsageCount: 1, // Reset to 0, then increment to 1 for current request
         dailyUsageResetAt: nextReset,
+        lastUsedAt: new Date(),
       },
     });
     
+    const remaining = dailyLimit === Infinity 
+      ? Infinity 
+      : dailyLimit - 1;
+    
     return {
       allowed: true,
-      remaining: dailyLimit === Infinity ? Infinity : dailyLimit,
-      used: 0,
+      remaining,
+      used: 1,
       limit: dailyLimit,
-      resetAt: new Date(getNextMidnightUTC()),
+      resetAt: nextReset,
       tier,
     };
   }

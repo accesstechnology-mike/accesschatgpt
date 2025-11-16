@@ -1,4 +1,4 @@
-# access: technology - ChatGPT Interface
+# access: chatgpt - Safe and Accessible ChatGPT Interface
 
 An accessible web interface for interacting with ChatGPT, designed with accessibility and assistive technologies in mind.
 
@@ -22,8 +22,6 @@ An accessible web interface for interacting with ChatGPT, designed with accessib
 
 ## Getting Started
 
-See [SETUP.md](./SETUP.md) for detailed setup instructions.
-
 ### Quick Start
 
 1. Clone the repository
@@ -31,15 +29,3 @@ See [SETUP.md](./SETUP.md) for detailed setup instructions.
 3. Copy `.env.example` to `.env` and configure
 4. Set up database: `pnpm db:generate && pnpm db:push`
 5. Run dev server: `pnpm dev`
-
-## Documentation
-
-- [Setup Guide](./SETUP.md) - Local development and production setup
-- [Email Setup](./EMAIL_SETUP.md) - Password reset configuration
-- [Social Login Setup](./SOCIAL_LOGIN_SETUP.md) - OAuth provider configuration
-- [Bot Protection Summary](./PROTECTION_SUMMARY.md) - Security and rate limiting features
-- [Bot Protection Accessibility](./BOT_PROTECTION_ACCESSIBLE.md) - Accessibility considerations for bot protection
-
-## License
-
-[Add your license here]
