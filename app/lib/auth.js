@@ -54,9 +54,21 @@ const sendResetPassword = async ({ user, url, token }) => {
   }
 };
 
+// better-auth 1.4+ requires secrets to be at least 32 characters at init.
+function resolveAuthSecret() {
+  const configured =
+    process.env.BETTER_AUTH_SECRET ||
+    process.env.JWT_SECRET ||
+    "change-this-in-production";
+  if (configured.length >= 32) {
+    return configured;
+  }
+  return configured.padEnd(32, configured);
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  secret: process.env.BETTER_AUTH_SECRET || process.env.JWT_SECRET || "change-this-in-production",
+  secret: resolveAuthSecret(),
   emailAndPassword: {
     enabled: true,
     disableSignUp: false,
